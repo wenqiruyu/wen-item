@@ -1,0 +1,19 @@
+eureka:
+  client:
+    register-with-eureka: true # 注册到eureka注册中心
+    fetch-registry: true # 获取注册示例列表
+    service-url: http://localhost:10000/eureka/
+
+spring:
+  mail:
+    default-encoding: UTF-8
+    host: smtp.qq.com
+    username: 2234150293@qq.com # 邮箱
+    password: # 邮箱授权码
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true

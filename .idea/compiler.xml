@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="wen-common-server" />
+        <module name="wen-email-server" />
+        <module name="wen-eureka-server" />
+        <module name="wen-log-starter" />
+        <module name="wen-sms-controller" />
+        <module name="wen-zuul-server" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="wen-sms-entity" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="wen-common-server" options="-parameters" />
+      <module name="wen-email-server" options="-parameters" />
+      <module name="wen-eureka-server" options="-parameters" />
+      <module name="wen-log-starter" options="-parameters" />
+      <module name="wen-sms-controller" options="-parameters" />
+      <module name="wen-sms-entity" options="-parameters" />
+      <module name="wen-zuul-server" options="-parameters" />
+    </option>
+  </component>
+</project>

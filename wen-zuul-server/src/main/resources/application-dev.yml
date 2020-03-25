@@ -1,0 +1,36 @@
+zuul:
+  ignored-services: "*" # 配置需要忽略的服务，对外不公开的服务,屏蔽服务名访问
+  retryable: true # 开启重试
+  routes:
+    eureka-consumer: # 整合eureka的面向服务的路由配置，可以自定义
+      path: /wen-email-server/** # 映射的路径
+      serviceId: wen-email-server # 转发服务名
+
+spring:
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000 # hystrix的超时时间必须大于Ribbon的超时时间
+
+ribbon:
+  connectTimeout: 2000  # 请求连接的超时时间
+  readTimeout: 5000 # 请求处理的超时时间
+  maxAutoRetries: 1 # 对当前实例的重试次数
+  maxAutoRetriesNextServer: 3 # 切换实例的重试次数
+  okToRetryOnAllOperations: true # 对所有操作请求都进行重试
+
+eureka:
+  instance:
+    prefer-ip-address: true # 开启使用ip代替服务名
+    instance-id: ${spring.cloud.client.ipAddress}:${spring.application.name}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:10000/eureka/

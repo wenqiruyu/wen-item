@@ -1,0 +1,12 @@
+# 由于是使用的Eureka的微服务注册中心，当服务进行下线时，eureka不会及时的进行将该服务进行剔除
+# 在服务下线eureka没有剔除的这段时间内，在Ribbon使用默认的轮询策略，Zuul网关会可能转发给出现故障的服务
+# 这会导致这次请求的失败，当然失败不会产生太多，在连续失败多次时，hystrix会处于打开的状态
+# 为了保证请求的成功，需要配置Ribbon的重试机制来实现，这时需要一个spring retry的依赖
+server:
+  port: 10001
+
+spring:
+  application:
+    name: wen-zuul-server
+  profiles:
+    active: dev
