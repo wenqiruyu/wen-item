@@ -4,19 +4,19 @@ import com.server.common.wen.enums.ExceptionEnum;
 import com.server.common.wen.exception.ExtenException;
 import com.server.common.wen.vo.ResultVO;
 import com.server.email.wen.service.SendMailService;
+import com.server.email.wen.vo.SendMailVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-import java.io.File;
-import java.util.List;
+import java.util.Date;
 
 /**
  * 项目名称：wen-item
@@ -40,69 +40,77 @@ public class SendMailServiceImpl implements SendMailService {
     private JavaMailSender mailSender;
 
     /**
-     * 发送普通邮件
+     * 发送邮件
      *
-     * @param title    邮件标题
-     * @param content  邮件内容
-     * @param mailName 发送给
+     * @param sendMailVO 邮件内容
      * @return com.server.common.wen.vo.ResultVO
      * @author yingx
      * @date 2020/3/25
      */
     @Override
-    public ResultVO sendSimpleMail(String title, String content, String... mailName) {
+    public ResultVO sendMail(SendMailVO sendMailVO) {
 
-        logger.info("SendMailServiceImpl sendSimpleMail start ... mailName:{}, title:{}, content:{}", mailName, title, content);
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(springMailUsername);
-        message.setTo(mailName);
-        message.setSubject(title);
-        message.setText(content);
+        logger.info("SendMailServiceImpl sendAttachmentsMail start ... SendMailVO:{}", sendMailVO);
+        this.validatorMailParam(sendMailVO);
+        sendMailVO.setFrom(springMailUsername);
         try {
-            mailSender.send(message);
-        } catch (Exception e) {
-            logger.error("SendMailServiceImpl sendSimpleMail error ... e:{}", e);
-            throw new ExtenException("sendSimpleMail", ExceptionEnum.UNEXPECTED_ERROR.getCode(),
-                    ExceptionEnum.UNEXPECTED_ERROR.getMessage());
-        }
-        logger.info("SendMailServiceImpl sendSimpleMail end ... ");
-        return new ResultVO();
-    }
-
-    /**
-     * 发送带附件的邮件
-     *
-     * @param title    邮件标题
-     * @param content  邮件内容
-     * @param fileList 邮件附件
-     * @param mailName 发送给
-     * @return com.server.common.wen.vo.ResultVO
-     * @author yingx
-     * @date 2020/3/25
-     */
-    @Override
-    public ResultVO sendAttachmentsMail(String title, String content, List<File> fileList, String... mailName) {
-
-        logger.info("SendMailServiceImpl sendAttachmentsMail start ... mailName:{}, title:{}, content:{}, fileNum:{}",
-                mailName, title, content, fileList.size());
-        MimeMessage message = mailSender.createMimeMessage();
-        try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(springMailUsername);
-            helper.setTo(mailName);
-            helper.setSubject(title);
-            helper.setText(content);
-            String fileName = null;
-            for (File file : fileList) {
-                fileName = MimeUtility.encodeText(file.getName(), "GB2312", "B");
-                helper.addAttachment(fileName, file);
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            //true表示支持复杂类型
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
+            messageHelper.setFrom(springMailUsername);//邮件发信人
+            messageHelper.setTo(sendMailVO.getTo().split(","));//邮件收信人
+            messageHelper.setSubject(sendMailVO.getSubject());//邮件主题
+            messageHelper.setText(sendMailVO.getText());//邮件内容
+            if (!StringUtils.isEmpty(sendMailVO.getCc())) {//抄送
+                messageHelper.setCc(sendMailVO.getCc().split(","));
             }
+            if (!StringUtils.isEmpty(sendMailVO.getBcc())) {//密送
+                messageHelper.setCc(sendMailVO.getBcc().split(","));
+            }
+            if (sendMailVO.getMultipartFiles() != null) {//添加邮件附件
+                for (MultipartFile multipartFile : sendMailVO.getMultipartFiles()) {
+                    messageHelper.addAttachment(multipartFile.getOriginalFilename(), multipartFile);
+                }
+            }
+            if (StringUtils.isEmpty(sendMailVO.getSendDate())) {
+                sendMailVO.setSendDate(new Date());
+                messageHelper.setSentDate(sendMailVO.getSendDate());
+            }
+            // 正式发送邮件
+            mailSender.send(mimeMessage);
         } catch (Exception e) {
             logger.error("SendMailServiceImpl sendAttachmentsMail error ... e:{}", e);
             throw new ExtenException("sendAttachmentsMail", ExceptionEnum.UNEXPECTED_ERROR.getCode(),
                     ExceptionEnum.UNEXPECTED_ERROR.getMessage());
         }
-        mailSender.send(message);
+        logger.info("SendMailServiceImpl sendAttachmentsMail error ... From:{}, To:{}", sendMailVO.getFrom(), sendMailVO.getTo());
         return new ResultVO();
+    }
+
+    /**
+     * 参数校验
+     *
+     * @param sendMailVO
+     * @return void
+     * @author yingx
+     * @date 2020/3/26
+     */
+    public void validatorMailParam(SendMailVO sendMailVO) {
+
+        if (sendMailVO.getTo() == null) {
+            logger.error("SendMailServiceImpl validatorMailParam error ... message:{}", "邮件收件人为空");
+            throw new ExtenException("validatorMailParam", ExceptionEnum.PARAM_VALIDATED_UN_PASS_NULL.getCode(),
+                    ExceptionEnum.PARAM_VALIDATED_UN_PASS_NULL.getMessage());
+        }
+        if (sendMailVO.getSubject() == null) {
+            logger.error("SendMailServiceImpl validatorMailParam error ... message:{}", "邮件主题为空");
+            throw new ExtenException("validatorMailParam", ExceptionEnum.PARAM_VALIDATED_UN_PASS_NULL.getCode(),
+                    ExceptionEnum.PARAM_VALIDATED_UN_PASS_NULL.getMessage());
+        }
+        if (sendMailVO.getText() == null) {
+            logger.error("SendMailServiceImpl validatorMailParam error ... message:{}", "邮件内容为空");
+            throw new ExtenException("validatorMailParam", ExceptionEnum.PARAM_VALIDATED_UN_PASS_NULL.getCode(),
+                    ExceptionEnum.PARAM_VALIDATED_UN_PASS_NULL.getMessage());
+        }
     }
 }

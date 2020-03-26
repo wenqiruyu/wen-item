@@ -1,7 +1,10 @@
 package com.server.email.wen.vo;
 
-import java.io.File;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * 项目名称：wen-item
@@ -16,64 +19,123 @@ import java.util.List;
 public class SendMailVO {
 
     /**
-     * 发送邮件给
+     * 邮件发送人
      */
-    private List<String> mailName;
+    private String from;
 
     /**
-     * 邮件标题
+     * 邮件收件人  多人使用,分割
      */
-    private String title;
+    private String to;
+
+    /**
+     * 邮件标题 主题
+     */
+    private String subject;
 
     /**
      * 邮件内容
      */
-    private String content;
+    private String text;
+
+    /**
+     * 邮件抄送 多人使用,分割
+     */
+    private String cc;
+
+    /**
+     * 邮件密送 多人使用,分割
+     */
+    private String bcc;
 
     /**
      * 附件
+     *
+     * @JsonIgnore 在实体类向前台返回数据时用来忽略不想传递给前台的属性或接口
      */
-    private List<File> fileList;
+    @JsonIgnore
+    private MultipartFile[] multipartFiles;
 
-    public List<String> getMailName() {
-        return mailName;
+    /**
+     * 邮件发送时间
+     */
+    private Date sendDate;
+
+    public String getFrom() {
+        return from;
     }
 
-    public void setMailName(List<String> mailName) {
-        this.mailName = mailName;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTo() {
+        return to;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTo(String to) {
+        this.to = to;
     }
 
-    public String getContent() {
-        return content;
+    public String getSubject() {
+        return subject;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
-    public List<File> getFileList() {
-        return fileList;
+    public String getText() {
+        return text;
     }
 
-    public void setFileList(List<File> fileList) {
-        this.fileList = fileList;
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getCc() {
+        return cc;
+    }
+
+    public void setCc(String cc) {
+        this.cc = cc;
+    }
+
+    public String getBcc() {
+        return bcc;
+    }
+
+    public void setBcc(String bcc) {
+        this.bcc = bcc;
+    }
+
+    public MultipartFile[] getMultipartFiles() {
+        return multipartFiles;
+    }
+
+    public void setMultipartFiles(MultipartFile[] multipartFiles) {
+        this.multipartFiles = multipartFiles;
+    }
+
+    public Date getSendDate() {
+        return sendDate;
+    }
+
+    public void setSendDate(Date sendDate) {
+        this.sendDate = sendDate;
     }
 
     @Override
     public String toString() {
         return "SendMailVO{" +
-                "mailName=" + mailName +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", fileList=" + fileList +
+                "from='" + from + '\'' +
+                ", to='" + to + '\'' +
+                ", subject='" + subject + '\'' +
+                ", text='" + text + '\'' +
+                ", cc='" + cc + '\'' +
+                ", bcc='" + bcc + '\'' +
+                ", multipartFiles=" + Arrays.toString(multipartFiles) +
+                ", sendDate=" + sendDate +
                 '}';
     }
 }

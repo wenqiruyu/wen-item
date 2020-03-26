@@ -8,6 +8,7 @@ class WenEmailServerApplicationTests {
 
 	@Test
 	void contextLoads() {
-	}
 
+
+	}
 }

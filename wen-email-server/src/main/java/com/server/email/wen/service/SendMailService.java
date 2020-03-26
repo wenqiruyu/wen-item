@@ -1,9 +1,7 @@
 package com.server.email.wen.service;
 
 import com.server.common.wen.vo.ResultVO;
-
-import java.io.File;
-import java.util.List;
+import com.server.email.wen.vo.SendMailVO;
 
 /**
  * 项目名称：wen-item
@@ -17,7 +15,5 @@ import java.util.List;
  */
 public interface SendMailService {
 
-    ResultVO sendSimpleMail(String title, String content, String... mailName);
-
-    ResultVO sendAttachmentsMail(String title, String content, List<File> fileList, String... mailName);
+    ResultVO sendMail(SendMailVO sendMailVO);
 }
